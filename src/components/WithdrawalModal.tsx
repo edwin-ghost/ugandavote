@@ -3,6 +3,7 @@ import { X, DollarSign, AlertCircle, Loader2, CheckCircle, ArrowDownToLine } fro
 import { useBet } from '@/context/BetContext';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { withdraw } from '@/lib/api'; // Import the withdraw API function
 
 export function WithdrawalModal() {
   const { user, setUser, isWithdrawalOpen, setIsWithdrawalOpen } = useBet();
@@ -44,13 +45,11 @@ export function WithdrawalModal() {
     setIsProcessing(true);
 
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Calculate new balance after withdrawal
+      // Call the backend API to process withdrawal
+      const response = await withdraw(amount, 'MTN'); // Default method as placeholder
+      
+      // If successful, update the local user balance
       const newBalance = user.balance - amount;
-
-      // Update user balance immediately (same as betting logic)
       setUser({ ...user, balance: newBalance });
 
       // Show success state
@@ -65,7 +64,16 @@ export function WithdrawalModal() {
       }, 2000);
     } catch (error: any) {
       console.error('Error processing withdrawal:', error);
-      toast.error('Withdrawal failed. Please try again.');
+      
+      // Handle specific error messages from backend
+      const errorMessage = error.response?.data?.error || 'Withdrawal failed. Please try again.';
+      toast.error(errorMessage);
+      
+      // If backend says insufficient balance, don't update local state
+      if (errorMessage.includes('Insufficient balance')) {
+        // Optionally refresh user balance from backend
+        // await fetchUserBalance();
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -115,7 +123,7 @@ export function WithdrawalModal() {
                   {formatCurrency(amount)} has been withdrawn
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Your funds will be processed within 24 hours
+                  Your funds will be processed shortly
                 </p>
               </div>
             ) : (
@@ -240,7 +248,7 @@ export function WithdrawalModal() {
 
                   {/* Info Text */}
                   <p className="text-xs text-center text-muted-foreground">
-                    Withdrawals are processed within 24 hours to your registered mobile money account
+                    Withdrawals are processed  to your registered mobile money account
                   </p>
                 </div>
               </>
