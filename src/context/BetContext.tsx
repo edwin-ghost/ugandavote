@@ -62,6 +62,8 @@ interface BetContextType {
   setIsAuthOpen: (open: boolean) => void;
   isPaymentOpen: boolean;
   setIsPaymentOpen: (open: boolean) => void;
+  isWithdrawalOpen: boolean;
+  setIsWithdrawalOpen: (open: boolean) => void;
 }
 
 const BetContext = createContext<BetContextType | undefined>(undefined);
@@ -74,6 +76,7 @@ export function BetProvider({ children }: { children: ReactNode }) {
   const [isBasketOpen, setIsBasketOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [isWithdrawalOpen, setIsWithdrawalOpen] = useState(false);
 
   const addSelection = (candidate: Candidate, election: Election) => {
     const selection: BetSelection = {
@@ -128,6 +131,8 @@ export function BetProvider({ children }: { children: ReactNode }) {
         setIsAuthOpen,
         isPaymentOpen,
         setIsPaymentOpen,
+        isWithdrawalOpen,
+        setIsWithdrawalOpen,
       }}
     >
       {children}

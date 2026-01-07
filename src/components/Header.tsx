@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Wallet, ShoppingCart, LogIn, History, Menu, LogOut } from 'lucide-react';
+import { User, Wallet, ShoppingCart, LogIn, History, Menu, LogOut, ArrowDownToLine } from 'lucide-react';
 import { useBet } from '@/context/BetContext';
 import { setAuthToken, getBalance } from '@/lib/api';
 import { toast } from 'sonner';
@@ -11,7 +11,7 @@ interface HeaderProps {
 }
 
 export function Header({ onOpenHistory, onToggleMobileSidebar }: HeaderProps) {
-  const { user, setUser, setIsAuthOpen, setIsBasketOpen, selections, setIsPaymentOpen } = useBet();
+  const { user, setUser, setIsAuthOpen, setIsBasketOpen, selections, setIsPaymentOpen, setIsWithdrawalOpen } = useBet();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Auto-refresh balance every 2 seconds when user is logged in
@@ -117,6 +117,17 @@ export function Header({ onOpenHistory, onToggleMobileSidebar }: HeaderProps) {
                 <Wallet className="w-4 h-4" />
                 <span className="hidden sm:inline">Deposit</span>
               </motion.button>
+
+
+              <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setIsWithdrawalOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted hover:bg-muted/80 font-medium text-sm"
+            >
+              <ArrowDownToLine className="w-4 h-4" />
+              <span className="hidden sm:inline">Withdraw</span>
+            </motion.button>
 
               {/* History */}
               <motion.button

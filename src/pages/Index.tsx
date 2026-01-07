@@ -8,6 +8,7 @@ import { ElectionMarket } from '@/components/ElectionMarket';
 import { BetBasket } from '@/components/BetBasket';
 import { AuthModal } from '@/components/AuthModal';
 import { PaymentModal } from '@/components/PaymentModal';
+import { WithdrawalModal } from '@/components/WithdrawalModal';
 import { BetHistoryModal } from '@/components/BetHistoryModal';
 import { UgandaBanner } from '@/components/UgandaBanner';
 import { JackpotBanner } from '@/components/JackpotBanner';
@@ -143,6 +144,8 @@ function BettingApp() {
       <BetBasket />
       <AuthModal />
       <PaymentModal />
+      <WithdrawalModal />
+
       <BetHistoryModal isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
       <JackpotModal isOpen={isJackpotOpen} onClose={() => setIsJackpotOpen(false)} />
     </div>

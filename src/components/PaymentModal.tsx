@@ -236,6 +236,7 @@ export function PaymentModal() {
                               {loading ? 'Processing...' : 'Send STK Push'}
                             </button>
                           </div>
+                          
                         )}
 
                    
