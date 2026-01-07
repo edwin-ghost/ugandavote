@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 export interface User {
   id?: string;
@@ -64,12 +64,18 @@ interface BetContextType {
   setIsPaymentOpen: (open: boolean) => void;
   isWithdrawalOpen: boolean;
   setIsWithdrawalOpen: (open: boolean) => void;
+  logout: () => void;
 }
 
 const BetContext = createContext<BetContextType | undefined>(undefined);
 
 export function BetProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  // Initialize user from localStorage
+  const [user, setUserState] = useState<User | null>(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
   const [selections, setSelections] = useState<BetSelection[]>([]);
   const [stake, setStake] = useState<number>(0);
   const [betHistory, setBetHistory] = useState<Bet[]>([]);
@@ -77,6 +83,25 @@ export function BetProvider({ children }: { children: ReactNode }) {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isWithdrawalOpen, setIsWithdrawalOpen] = useState(false);
+
+  // Persist user to localStorage whenever it changes
+  const setUser = (newUser: User | null) => {
+    setUserState(newUser);
+    if (newUser) {
+      localStorage.setItem('user', JSON.stringify(newUser));
+    } else {
+      localStorage.removeItem('user');
+    }
+  };
+
+  // Logout function to clear everything
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    clearSelections();
+    setBetHistory([]);
+  };
 
   const addSelection = (candidate: Candidate, election: Election) => {
     const selection: BetSelection = {
@@ -133,6 +158,7 @@ export function BetProvider({ children }: { children: ReactNode }) {
         setIsPaymentOpen,
         isWithdrawalOpen,
         setIsWithdrawalOpen,
+        logout,
       }}
     >
       {children}
