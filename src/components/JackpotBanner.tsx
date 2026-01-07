@@ -35,7 +35,10 @@ export function JackpotBanner({ onOpenJackpot }: JackpotBannerProps) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex items-center justify-between">
+      <div 
+        className="relative z-10 flex flex-col sm:flex-row items-center sm:justify-between gap-3 cursor-pointer"
+        onClick={onOpenJackpot}
+      >
         <div className="flex items-center gap-3">
           <div className="bg-white/30 backdrop-blur-sm rounded-full p-2.5 shadow-lg">
             <Trophy className="h-6 w-6 text-white drop-shadow-md" />
@@ -48,8 +51,7 @@ export function JackpotBanner({ onOpenJackpot }: JackpotBannerProps) {
           </div>
         </div>
         <Button 
-          onClick={onOpenJackpot}
-          className="bg-white text-amber-600 hover:bg-yellow-50 font-bold text-sm px-5 shadow-lg hover:scale-105 transition-transform"
+          className="bg-white text-amber-600 hover:bg-yellow-50 font-bold text-sm px-5 shadow-lg hover:scale-105 transition-transform w-full sm:w-auto"
         >
           🎯 Play Now
         </Button>

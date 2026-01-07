@@ -11,14 +11,13 @@ const paymentMethods = [
     name: 'MTN Mobile Money',
     color: '#FFCC00',
     logo: '📱',
-    phoneNumber: '0700123456',
+    phoneNumber: '0778363964',
     instructions: [
       'Dial *165#',
       'Select "Send Money"',
       'Enter Amount',
       'Enter your PIN',
       'Confirm payment',
-      'Wait for balance to reflect',
     ],
   },
   {
@@ -26,14 +25,14 @@ const paymentMethods = [
     name: 'Airtel Money',
     color: '#FF0000',
     logo: '📲',
-    phoneNumber: '0750654321',
+    phoneNumber: '0749894075',
     instructions: [
-      'Dial *185*9#',
-      'Select Pay Bill',
+      'Dial *185#',
+      'Select "Send Money" ',
+      'Enter the number.',
       'Enter Amount',
       'Enter your PIN',
       'Confirm payment',
-      'Wait for balance to reflect',
     ],
   },
   {
@@ -43,14 +42,7 @@ const paymentMethods = [
     logo: '📲',
     instructions: ['Enter your phone number to receive an STK Push.'],
   },
-  {
-    id: 'bitcoin',
-    name: 'Bitcoin',
-    color: '#F7931A',
-    logo: <Bitcoin className="w-6 h-6" />,
-    wallet: '1FfmbHfnpaZjKFvyi1okTjJJusN455paPH',
-    instructions: ['Send your Bitcoin payment to the wallet above.'],
-  },
+  
 ];
 
 export function PaymentModal() {
@@ -246,21 +238,7 @@ export function PaymentModal() {
                           </div>
                         )}
 
-                        {/* Bitcoin Wallet */}
-                        {selectedPayment?.id === 'bitcoin' && (
-                          <div className="bg-card rounded-lg p-3 mb-4 flex items-center justify-between">
-                            <div>
-                              <p className="text-xs text-muted-foreground">Bitcoin Wallet</p>
-                              <p className="font-display text-sm break-all">{selectedPayment.wallet}</p>
-                            </div>
-                            <button
-                              onClick={() => handleCopy(selectedPayment.wallet || '')}
-                              className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
-                            >
-                              {copied ? <CheckCircle className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
-                            </button>
-                          </div>
-                        )}
+                   
 
                         {/* Phone Number for MTN/Airtel */}
                         {(selectedPayment?.id === 'mtn' || selectedPayment?.id === 'airtel') && selectedPayment?.phoneNumber && (
