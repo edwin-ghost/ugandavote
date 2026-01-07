@@ -11,14 +11,14 @@ const paymentMethods = [
     name: 'MTN Mobile Money',
     color: '#FFCC00',
     logo: '📱',
-    paybill: '123456',
+    phoneNumber: '0700123456',
     instructions: [
-      'Dial *165*3#',
-      'Select Pay Bill',
-      'Enter Business Number: 123456',
+      'Dial *165#',
+      'Select "Send Money"',
       'Enter Amount',
       'Enter your PIN',
       'Confirm payment',
+      'Wait for balance to reflect',
     ],
   },
   {
@@ -26,14 +26,14 @@ const paymentMethods = [
     name: 'Airtel Money',
     color: '#FF0000',
     logo: '📲',
-    paybill: '654321',
+    phoneNumber: '0750654321',
     instructions: [
       'Dial *185*9#',
       'Select Pay Bill',
-      'Enter Business Number: 654321',
       'Enter Amount',
       'Enter your PIN',
       'Confirm payment',
+      'Wait for balance to reflect',
     ],
   },
   {
@@ -251,7 +251,7 @@ export function PaymentModal() {
                           <div className="bg-card rounded-lg p-3 mb-4 flex items-center justify-between">
                             <div>
                               <p className="text-xs text-muted-foreground">Bitcoin Wallet</p>
-                              <p className="font-display text-2xl">{selectedPayment.wallet}</p>
+                              <p className="font-display text-sm break-all">{selectedPayment.wallet}</p>
                             </div>
                             <button
                               onClick={() => handleCopy(selectedPayment.wallet || '')}
@@ -262,7 +262,23 @@ export function PaymentModal() {
                           </div>
                         )}
 
-                        {/* Amount Display for all */}
+                        {/* Phone Number for MTN/Airtel */}
+                        {(selectedPayment?.id === 'mtn' || selectedPayment?.id === 'airtel') && selectedPayment?.phoneNumber && (
+                          <div className="mb-4">
+                            <p className="text-sm mb-2">Send money to:</p>
+                            <div className="bg-white rounded-lg p-3 flex items-center justify-between">
+                              <p className="font-display text-xl text-black">{selectedPayment.phoneNumber}</p>
+                              <button
+                                onClick={() => handleCopy(selectedPayment.phoneNumber || '')}
+                                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+                              >
+                                {copied ? <CheckCircle className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5 text-black" />}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Amount Display for all except Mpesa */}
                         {amount && selectedPayment?.id !== 'mpesa' && (
                           <div className="bg-card rounded-lg p-3 mb-4">
                             <p className="text-xs text-muted-foreground">Amount to Send</p>
@@ -274,7 +290,7 @@ export function PaymentModal() {
 
                         {/* Instructions */}
                         {selectedPayment?.instructions.map((step, i) => (
-                          <div key={i} className="flex gap-3 items-start">
+                          <div key={i} className="flex gap-3 items-start mb-2">
                             <span className="w-6 h-6 rounded-full bg-card flex items-center justify-center text-xs font-bold flex-shrink-0">
                               {i + 1}
                             </span>
