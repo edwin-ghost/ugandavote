@@ -47,9 +47,12 @@ export function WithdrawalModal() {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Deduct amount from user balance
+      // Deduct amount from user balance - spread all user properties
       const newBalance = user.balance - amount;
-      setUser({ ...user, balance: newBalance });
+      setUser({ 
+        ...user, 
+        balance: newBalance 
+      });
 
       // Show success state
       setWithdrawalSuccess(true);
@@ -60,10 +63,10 @@ export function WithdrawalModal() {
         setAmount(0);
         setWithdrawalSuccess(false);
         setIsWithdrawalOpen(false);
+        setIsProcessing(false);
       }, 2000);
     } catch (error) {
       toast.error('Withdrawal failed. Please try again.');
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -94,7 +97,7 @@ export function WithdrawalModal() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-card rounded-2xl border border-border z-50 shadow-2xl"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-card rounded-2xl border border-border z-50 shadow-2xl mx-4"
           >
             {withdrawalSuccess ? (
               // Success View
