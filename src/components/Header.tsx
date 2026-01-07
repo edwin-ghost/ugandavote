@@ -69,8 +69,8 @@ export function Header({ onOpenHistory, onToggleMobileSidebar }: HeaderProps) {
   return (
     <header className="h-16 bg-card/80 backdrop-blur-xl border-b border-border sticky top-0 z-40">
       <div className="h-full px-4 lg:px-6 flex items-center justify-between gap-2">
-        {/* Left Section: Mobile Menu + Title */}
-        <div className="flex items-center gap-2 flex-1 min-w-0">
+        {/* Left Section: Mobile Menu + Live Indicator */}
+        <div className="flex items-center gap-2">
           {/* Mobile Menu */}
           <button 
             onClick={onToggleMobileSidebar}
@@ -79,11 +79,10 @@ export function Header({ onOpenHistory, onToggleMobileSidebar }: HeaderProps) {
             <Menu className="w-5 h-5" />
           </button>
 
-          {/* Title */}
-          <div className="flex items-center gap-2 min-w-0">
-            <h2 className="font-display text-base sm:text-xl text-foreground truncate">MARKET ODDS</h2>
+          {/* Live Indicator */}
+          <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
-            <span className="text-xs text-muted-foreground hidden sm:inline flex-shrink-0">LIVE</span>
+            <span className="text-xs text-muted-foreground font-medium">LIVE</span>
           </div>
         </div>
 
@@ -105,6 +104,28 @@ export function Header({ onOpenHistory, onToggleMobileSidebar }: HeaderProps) {
                 <RefreshCw className="w-3 h-3 text-green-500 sm:hidden" />
                 <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-green-500 animate-pulse hidden sm:block" />
               </motion.div>
+
+              {/* Deposit Button */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setIsPaymentOpen(true)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-uganda-yellow text-uganda-black font-medium text-sm"
+              >
+                <Wallet className="w-4 h-4" />
+                <span className="hidden sm:inline">Deposit</span>
+              </motion.button>
+
+              {/* Withdraw Button */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setIsWithdrawalOpen(true)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted hover:bg-muted/80 font-medium text-sm"
+              >
+                <ArrowDownToLine className="w-4 h-4" />
+                <span className="hidden sm:inline">Withdraw</span>
+              </motion.button>
 
               {/* History Button - Visible on all screens */}
               <motion.button
@@ -146,30 +167,7 @@ export function Header({ onOpenHistory, onToggleMobileSidebar }: HeaderProps) {
         </div>
       </div>
 
-      {/* Mobile Action Bar - Only shown when logged in */}
-      {user && (
-        <div className="lg:hidden border-t border-border px-4 py-2 flex gap-2">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setIsPaymentOpen(true)}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-uganda-yellow text-uganda-black font-medium text-sm"
-          >
-            <Wallet className="w-4 h-4" />
-            <span>Deposit</span>
-          </motion.button>
 
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setIsWithdrawalOpen(true)}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 font-medium text-sm"
-          >
-            <ArrowDownToLine className="w-4 h-4" />
-            <span>Withdraw</span>
-          </motion.button>
-        </div>
-      )}
     </header>
   );
 }
