@@ -1,0 +1,306 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Uganda National Colors */
+    --uganda-black: 0 0% 8%;
+    --uganda-yellow: 49 97% 50%;
+    --uganda-red: 0 100% 43%;
+    
+    /* Core Theme */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
+
+    --primary: 0 0% 8%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 49 97% 50%;
+    --secondary-foreground: 0 0% 8%;
+
+    --accent: 0 100% 43%;
+    --accent-foreground: 0 0% 100%;
+
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 45%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 49 97% 50%;
+
+    --radius: 0.75rem;
+
+    /* Custom */
+    --glass: 0 0% 100% / 0.8;
+    --glass-border: 0 0% 100% / 0.3;
+    --shadow-soft: 0 4px 24px -4px hsl(0 0% 0% / 0.08);
+    --shadow-card: 0 8px 32px -8px hsl(0 0% 0% / 0.12);
+    --shadow-elevated: 0 16px 48px -12px hsl(0 0% 0% / 0.15);
+    
+    /* Gradients */
+    --gradient-yellow: linear-gradient(135deg, hsl(49 97% 50%), hsl(45 100% 55%));
+    --gradient-red: linear-gradient(135deg, hsl(0 100% 43%), hsl(0 85% 50%));
+    --gradient-dark: linear-gradient(135deg, hsl(0 0% 8%), hsl(0 0% 15%));
+    --gradient-glass: linear-gradient(135deg, hsl(0 0% 100% / 0.9), hsl(0 0% 100% / 0.7));
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 8%;
+    --sidebar-primary: 49 97% 50%;
+    --sidebar-primary-foreground: 0 0% 8%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 8%;
+    --sidebar-border: 0 0% 92%;
+    --sidebar-ring: 49 97% 50%;
+  }
+
+  .dark {
+    --background: 0 0% 6%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 49 97% 50%;
+    --primary-foreground: 0 0% 8%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 95%;
+
+    --accent: 0 100% 43%;
+    --accent-foreground: 0 0% 100%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
+
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 49 97% 50%;
+
+    --glass: 0 0% 12% / 0.8;
+    --glass-border: 0 0% 20% / 0.5;
+
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 49 97% 50%;
+    --sidebar-primary-foreground: 0 0% 8%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 49 97% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.02em;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-xl border border-white/20 shadow-lg;
+  }
+
+  .glass-panel {
+    @apply bg-white/90 backdrop-blur-2xl border border-white/30;
+  }
+
+  .uganda-gradient {
+    background: linear-gradient(135deg, 
+      hsl(var(--uganda-black)) 0%, 
+      hsl(var(--uganda-yellow)) 50%, 
+      hsl(var(--uganda-red)) 100%
+    );
+  }
+
+  .uganda-stripe {
+    background: linear-gradient(180deg,
+      hsl(var(--uganda-black)) 0%,
+      hsl(var(--uganda-black)) 33.33%,
+      hsl(var(--uganda-yellow)) 33.33%,
+      hsl(var(--uganda-yellow)) 66.66%,
+      hsl(var(--uganda-red)) 66.66%,
+      hsl(var(--uganda-red)) 100%
+    );
+  }
+
+  .odds-badge {
+    @apply inline-flex items-center justify-center px-3 py-1.5 rounded-lg font-semibold text-sm transition-all duration-200;
+    background: var(--gradient-yellow);
+    color: hsl(var(--uganda-black));
+  }
+
+  .odds-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px hsl(var(--uganda-yellow) / 0.4);
+  }
+
+  .leading-badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
+    background: var(--gradient-red);
+    color: white;
+  }
+
+  .bet-button {
+    @apply px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200;
+    background: hsl(var(--uganda-black));
+    color: white;
+  }
+
+  .bet-button:hover {
+    background: hsl(var(--uganda-yellow));
+    color: hsl(var(--uganda-black));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px hsl(var(--uganda-yellow) / 0.3);
+  }
+
+  .bet-button.selected {
+    background: var(--gradient-yellow);
+    color: hsl(var(--uganda-black));
+  }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer;
+  }
+
+  .sidebar-item:hover {
+    @apply bg-muted;
+  }
+
+  .sidebar-item.active {
+    background: var(--gradient-yellow);
+    color: hsl(var(--uganda-black));
+  }
+
+  .tab-button {
+    @apply px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .tab-button:hover {
+    @apply bg-muted;
+    color: hsl(var(--foreground));
+  }
+
+  .tab-button.active {
+    background: hsl(var(--uganda-black));
+    color: white;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border bg-white/50 backdrop-blur-sm transition-all duration-200;
+    border-color: hsl(var(--border));
+  }
+
+  .input-field:focus {
+    @apply outline-none ring-2;
+    ring-color: hsl(var(--uganda-yellow));
+    border-color: hsl(var(--uganda-yellow));
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  .animate-bounce-in {
+    animation: bounceIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceIn {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
