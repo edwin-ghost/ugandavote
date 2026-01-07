@@ -6,6 +6,7 @@ import { FeaturedMarket } from '@/components/FeaturedMarket';
 import { ElectionTabs } from '@/components/ElectionTabs';
 import { ElectionMarket } from '@/components/ElectionMarket';
 import { BetBasket } from '@/components/BetBasket';
+import { FloatingBasketButton } from '@/components/FloatingBasketButton';
 import { AuthModal } from '@/components/AuthModal';
 import { PaymentModal } from '@/components/PaymentModal';
 import { WithdrawalModal } from '@/components/WithdrawalModal';
@@ -100,7 +101,7 @@ function BettingApp() {
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(true)}
         />
 
-        <main className="p-4 lg:p-6 max-w-7xl mx-auto">
+        <main className="p-4 lg:p-6 max-w-7xl mx-auto pb-24">
           {/* Uganda Banner with Countdown */}
           <UgandaBanner />
 
@@ -140,12 +141,14 @@ function BettingApp() {
         </main>
       </div>
 
+      {/* Floating Basket Button */}
+      <FloatingBasketButton />
+
       {/* Modals */}
       <BetBasket />
       <AuthModal />
       <PaymentModal />
       <WithdrawalModal />
-
       <BetHistoryModal isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
       <JackpotModal isOpen={isJackpotOpen} onClose={() => setIsJackpotOpen(false)} />
     </div>

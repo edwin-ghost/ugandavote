@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Wallet, ShoppingCart, LogIn, History, Menu, LogOut, ArrowDownToLine } from 'lucide-react';
+import { User, Wallet, History, LogIn, Menu, LogOut, ArrowDownToLine, RefreshCw } from 'lucide-react';
 import { useBet } from '@/context/BetContext';
 import { setAuthToken, getBalance } from '@/lib/api';
 import { toast } from 'sonner';
@@ -11,28 +11,23 @@ interface HeaderProps {
 }
 
 export function Header({ onOpenHistory, onToggleMobileSidebar }: HeaderProps) {
-  const { user, setUser, setIsAuthOpen, setIsBasketOpen, selections, setIsPaymentOpen, setIsWithdrawalOpen } = useBet();
+  const { user, setUser, setIsAuthOpen, setIsPaymentOpen, setIsWithdrawalOpen } = useBet();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Auto-refresh balance every 2 seconds when user is logged in
   useEffect(() => {
     if (user) {
-      // Fetch immediately
       fetchBalance();
-
-      // Set up interval for auto-refresh
       intervalRef.current = setInterval(() => {
         fetchBalance();
-      }, 2000); // 2 seconds
+      }, 2000);
 
-      // Cleanup on unmount or when user logs out
       return () => {
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
         }
       };
     } else {
-      // Clear interval if user logs out
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
@@ -47,8 +42,6 @@ export function Header({ onOpenHistory, onToggleMobileSidebar }: HeaderProps) {
       }
     } catch (error: any) {
       console.error('Error fetching balance:', error);
-      // Silently fail for auto-refresh - don't show toast
-      // If unauthorized, clear user session
       if (error.response?.status === 401) {
         handleLogout();
       }
@@ -75,80 +68,67 @@ export function Header({ onOpenHistory, onToggleMobileSidebar }: HeaderProps) {
 
   return (
     <header className="h-16 bg-card/80 backdrop-blur-xl border-b border-border sticky top-0 z-40">
-      <div className="h-full px-4 lg:px-6 flex items-center justify-between">
-        {/* Mobile Menu */}
-        <button 
-          onClick={onToggleMobileSidebar}
-          className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
+      <div className="h-full px-4 lg:px-6 flex items-center justify-between gap-2">
+        {/* Left Section: Mobile Menu + Title */}
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          {/* Mobile Menu */}
+          <button 
+            onClick={onToggleMobileSidebar}
+            className="lg:hidden p-2 rounded-lg hover:bg-muted transition-colors flex-shrink-0"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
 
-        {/* Title */}
-        <div className="hidden lg:flex items-center gap-2">
-          <h2 className="font-display text-xl text-foreground">MARKET ODDS</h2>
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xs text-muted-foreground">LIVE</span>
+          {/* Title */}
+          <div className="flex items-center gap-2 min-w-0">
+            <h2 className="font-display text-base sm:text-xl text-foreground truncate">MARKET ODDS</h2>
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+            <span className="text-xs text-muted-foreground hidden sm:inline flex-shrink-0">LIVE</span>
+          </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-3">
+        {/* Right Section: Actions */}
+        <div className="flex items-center gap-2 flex-shrink-0">
           {user ? (
             <>
-              {/* Balance - with auto-refresh indicator */}
+              {/* Balance - Compact on Mobile */}
               <motion.div 
-                className="flex items-center gap-1 px-3 py-2 rounded-xl bg-muted cursor-pointer relative"
+                className="flex items-center gap-1 px-2 sm:px-3 py-2 rounded-xl bg-muted cursor-pointer relative"
                 onClick={fetchBalance}
                 whileHover={{ scale: 1.02 }}
                 title="Click to refresh balance"
               >
-                <span className="text-xs text-muted-foreground">UGX</span>
-                <span className="font-semibold text-sm">{formatBalance(user.balance).replace('UGX', '').trim()}</span>
-                <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-green-500 animate-pulse" title="Auto-updating" />
+                <span className="text-xs text-muted-foreground hidden sm:inline">UGX</span>
+                <span className="font-semibold text-xs sm:text-sm">
+                  {formatBalance(user.balance).replace('UGX', '').trim()}
+                </span>
+                <RefreshCw className="w-3 h-3 text-green-500 sm:hidden" />
+                <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-green-500 animate-pulse hidden sm:block" />
               </motion.div>
 
-              {/* Deposit Button */}
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setIsPaymentOpen(true)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl bg-uganda-yellow text-uganda-black font-medium text-sm"
-              >
-                <Wallet className="w-4 h-4" />
-                <span className="hidden sm:inline">Deposit</span>
-              </motion.button>
-
-
-              <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setIsWithdrawalOpen(true)}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-muted hover:bg-muted/80 font-medium text-sm"
-            >
-              <ArrowDownToLine className="w-4 h-4" />
-              <span className="hidden sm:inline">Withdraw</span>
-            </motion.button>
-
-              {/* History */}
+              {/* History Button - Visible on all screens */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onOpenHistory}
-                className="p-2.5 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
+                className="p-2 sm:p-2.5 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
+                title="Bet History"
               >
-                <History className="w-5 h-5" />
+                <History className="w-4 h-4 sm:w-5 sm:h-5" />
               </motion.button>
 
-              {/* User & Logout */}
-              <div className="flex items-center gap-1 px-3 py-2 rounded-xl bg-uganda-black text-white">
+              {/* User Profile - Compact */}
+              <div className="flex items-center gap-1 px-2 sm:px-3 py-2 rounded-xl bg-uganda-black text-white">
                 <User className="w-4 h-4" />
-                <span className="text-sm font-medium hidden sm:block">{user.phone}</span>
+                <span className="text-xs sm:text-sm font-medium hidden md:block max-w-[100px] truncate">
+                  {user.phone}
+                </span>
                 <button
                   onClick={handleLogout}
-                  className="p-1 rounded hover:bg-white/20 ml-1"
+                  className="p-1 rounded hover:bg-white/20"
                   title="Logout"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
               </div>
             </>
@@ -157,36 +137,39 @@ export function Header({ onOpenHistory, onToggleMobileSidebar }: HeaderProps) {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setIsAuthOpen(true)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-uganda-black text-white font-medium text-sm hover:bg-uganda-black/90 transition-colors"
+              className="flex items-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-uganda-black text-white font-medium text-xs sm:text-sm hover:bg-uganda-black/90 transition-colors"
             >
               <LogIn className="w-4 h-4" />
               <span>Login</span>
             </motion.button>
           )}
-
-          {/* MY SELECTIONS */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsBasketOpen(true)}
-            className="relative p-2.5 rounded-xl bg-uganda-yellow text-uganda-black hover:shadow-lg hover:shadow-uganda-yellow/30 transition-all"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            <AnimatePresence>
-              {selections.length > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-uganda-red text-white text-xs font-bold flex items-center justify-center"
-                >
-                  {selections.length}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </motion.button>
         </div>
       </div>
+
+      {/* Mobile Action Bar - Only shown when logged in */}
+      {user && (
+        <div className="lg:hidden border-t border-border px-4 py-2 flex gap-2">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setIsPaymentOpen(true)}
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-uganda-yellow text-uganda-black font-medium text-sm"
+          >
+            <Wallet className="w-4 h-4" />
+            <span>Deposit</span>
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setIsWithdrawalOpen(true)}
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 font-medium text-sm"
+          >
+            <ArrowDownToLine className="w-4 h-4" />
+            <span>Withdraw</span>
+          </motion.button>
+        </div>
+      )}
     </header>
   );
 }
