@@ -93,4 +93,17 @@ export const getBetHistory = () => api.get('/bets/history');
 
 export const placeJackpotBet = (jackpotData) => api.post('/bets', jackpotData);
 
+
+// ===============================
+// ADMIN
+// ===============================
+
+export const getAdminUsers = () => api.get('/admin/users');
+
+export const adminAddBalance = (user_id, amount) =>
+  api.post('/admin/balance', { user_id, amount });
+
+export const reconcileMpesa = () =>
+  api.post('/payments/mpesa/update_pending');
+
 export default api;
