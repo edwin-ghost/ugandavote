@@ -4,6 +4,9 @@ export interface User {
   id?: string;
   phone: string;
   balance: number;
+  referral_code: string;
+  bonus_balance: number;
+  total_wagered?: number;
 }
 
 export interface Candidate {
@@ -65,12 +68,12 @@ interface BetContextType {
   isWithdrawalOpen: boolean;
   setIsWithdrawalOpen: (open: boolean) => void;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const BetContext = createContext<BetContextType | undefined>(undefined);
 
 export function BetProvider({ children }: { children: ReactNode }) {
-  // Initialize user from localStorage
   const [user, setUserState] = useState<User | null>(() => {
     const savedUser = localStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
@@ -84,7 +87,6 @@ export function BetProvider({ children }: { children: ReactNode }) {
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isWithdrawalOpen, setIsWithdrawalOpen] = useState(false);
 
-  // Persist user to localStorage whenever it changes
   const setUser = (newUser: User | null) => {
     setUserState(newUser);
     if (newUser) {
@@ -94,7 +96,24 @@ export function BetProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Logout function to clear everything
+  const refreshUser = async () => {
+    if (!user) return;
+    
+    try {
+      const { getBalance } = await import('@/lib/api');
+      const response = await getBalance();
+      
+      setUser({
+        ...user,
+        balance: response.data.balance,
+        bonus_balance: response.data.bonus_balance,
+        total_wagered: response.data.total_wagered
+      });
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
@@ -112,7 +131,6 @@ export function BetProvider({ children }: { children: ReactNode }) {
     };
 
     setSelections((prev) => {
-      // Remove any existing selection from the same election
       const filtered = prev.filter((s) => s.election.id !== selection.election.id);
       return [...filtered, selection];
     });
@@ -159,6 +177,7 @@ export function BetProvider({ children }: { children: ReactNode }) {
         isWithdrawalOpen,
         setIsWithdrawalOpen,
         logout,
+        refreshUser,
       }}
     >
       {children}

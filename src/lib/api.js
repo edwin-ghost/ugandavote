@@ -9,10 +9,7 @@ const api = axios.create({
   },
 });
 
-// ===============================
-// TOKEN HANDLING
-// ===============================
-
+// Token management
 export const setAuthToken = (token) => {
   if (token) {
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -23,53 +20,77 @@ export const setAuthToken = (token) => {
   }
 };
 
-// Load token on refresh
+// Load token on app start
 const token = localStorage.getItem('token');
 if (token) {
   setAuthToken(token);
 }
 
+// Response interceptor for token expiration
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid
+      setAuthToken(null);
+      window.location.href = '/';
+    }
+    return Promise.reject(error);
+  }
+);
+
 // ===============================
 // AUTH
 // ===============================
 
-export const registerUser = (phone, pin) => api.post('/auth/register', { phone, pin });
-export const loginUser = (phone, pin) => api.post('/auth/login', { phone, pin });
+export const registerUser = (phone, pin, referralCode = '') => 
+  api.post('/auth/register', { phone, pin, referralCode });
+
+export const loginUser = (phone, pin) => 
+  api.post('/auth/login', { phone, pin });
 
 // ===============================
-// USER
+// USER & BALANCE
 // ===============================
 
-// Token will be automatically sent because of setAuthToken
 export const getBalance = () => api.get('/balance');
 
-// Admin add balance
-export const deposit = (user_id, amount) => api.post('/admin/balance', { user_id, amount });
+export const deposit = (user_id, amount) => 
+  api.post('/admin/balance', { user_id, amount });
 
-// Withdraw
-export const withdraw = (amount, method) => api.post('/withdraw', { amount, method });
+export const withdraw = (amount, method = 'MTN') => 
+  api.post('/withdraw', { amount, method });
+
+export const getWithdrawalHistory = () => 
+  api.get('/withdrawals/history');
+
+// ===============================
+// REFERRALS
+// ===============================
+
+export const getReferralStats = () => api.get('/referrals/stats');
 
 // ===============================
 // PAYMENTS - M-PESA
 // ===============================
 
-// Initiate M-Pesa STK Push
 export const mpesaPayment = (phone, amount) => 
   api.post('/payments/mpesa', { phone, amount });
 
-// Check M-Pesa transaction status
 export const checkMpesaStatus = (checkoutRequestId) => 
   api.get(`/payments/mpesa/status/${checkoutRequestId}`);
+
+export const updatePendingMpesa = () =>
+  api.post('/payments/mpesa/update_pending');
 
 // ===============================
 // BETS
 // ===============================
 
 export const placeBet = (bet) => api.post('/bets', bet);
+
 export const getBetHistory = () => api.get('/bets/history');
 
-
 export const placeJackpotBet = (jackpotData) => api.post('/bets', jackpotData);
-
 
 export default api;

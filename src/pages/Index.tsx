@@ -6,14 +6,16 @@ import { FeaturedMarket } from '@/components/FeaturedMarket';
 import { ElectionTabs } from '@/components/ElectionTabs';
 import { ElectionMarket } from '@/components/ElectionMarket';
 import { BetBasket } from '@/components/BetBasket';
-import { FloatingBasketButton } from '@/components/FloatingBasketButton';
 import { AuthModal } from '@/components/AuthModal';
 import { PaymentModal } from '@/components/PaymentModal';
 import { WithdrawalModal } from '@/components/WithdrawalModal';
+import { FloatingBasketButton } from '@/components/FloatingBasketButton';
+
 import { BetHistoryModal } from '@/components/BetHistoryModal';
 import { UgandaBanner } from '@/components/UgandaBanner';
 import { JackpotBanner } from '@/components/JackpotBanner';
 import { JackpotModal } from '@/components/JackpotModal';
+import ReferralBanner from '@/components/ReferralBanner';
 import { BetProvider } from '@/context/BetContext';
 import { elections, constituencies } from '@/data/elections';
 import { X } from 'lucide-react';
@@ -101,12 +103,18 @@ function BettingApp() {
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(true)}
         />
 
-        <main className="p-4 lg:p-6 max-w-7xl mx-auto pb-24">
+        <main className="p-4 lg:p-6 max-w-7xl mx-auto">
           {/* Uganda Banner with Countdown */}
           <UgandaBanner />
 
           {/* Jackpot Banner */}
           <JackpotBanner onOpenJackpot={() => setIsJackpotOpen(true)} />
+
+          {/* Referral Banner */}
+          <ReferralBanner />
+
+    
+
 
           {/* Featured Market */}
           {featuredElection && selectedConstituency === 'national' && (
@@ -141,10 +149,9 @@ function BettingApp() {
         </main>
       </div>
 
-      {/* Floating Basket Button */}
+      {/* Modals */}
       <FloatingBasketButton />
 
-      {/* Modals */}
       <BetBasket />
       <AuthModal />
       <PaymentModal />

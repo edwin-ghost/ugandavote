@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Phone, Lock, Eye, EyeOff, User, ArrowRight } from 'lucide-react';
+import { X, Phone, Lock, Eye, EyeOff, User, ArrowRight, Gift } from 'lucide-react';
 import { useBet } from '@/context/BetContext';
 import { toast } from 'sonner';
-import { loginUser, registerUser, setAuthToken, getBalance } from '@/lib/api';
+import { registerUser, loginUser, setAuthToken } from '@/lib/api';
 
 export function AuthModal() {
   const { isAuthOpen, setIsAuthOpen, setUser } = useBet();
@@ -11,46 +11,68 @@ export function AuthModal() {
   const [showPin, setShowPin] = useState(false);
   const [phone, setPhone] = useState('');
   const [pin, setPin] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+
+  const normalizePhone = (value: string) => {
+    return value.replace(/\D/g, '').slice(0, 9);
+  };
+
+  // Pre-fill referral code from URL if available
+  useEffect(() => {
+    const storedCode = localStorage.getItem('referralCode');
+    if (storedCode && !isLogin) {
+      setReferralCode(storedCode);
+    }
+  }, [isLogin]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    if (!/^7\d{8}$/.test(phone)) {
+      toast.error('Phone must be in format 7XXXXXXXX');
+      return;
+    }
+  
+    if (!/^\d{4}$/.test(pin)) {
+      toast.error('Please enter a 4-digit PIN');
+      return;
+    }
+  
     setIsLoading(true);
   
     try {
-      const res = isLogin
-        ? await loginUser(phone, pin)
-        : await registerUser(phone, pin);
+      const fullPhone = phone; // ✅ EXACTLY WHAT BACKEND EXPECTS
   
-      const { token, user } = res.data;
-  
-      if (!token) {
-        throw new Error('No token returned');
+      let response;
+      if (isLogin) {
+        response = await loginUser(fullPhone, pin);
+      } else {
+        response = await registerUser(fullPhone, pin, referralCode);
       }
   
-      // Set token globally
-      setAuthToken(token);
+      const { token, user } = response.data;
   
-      // Fetch balance AFTER token is set
-      const balanceRes = await getBalance();
+      setAuthToken(token);
   
       setUser({
         id: user.id,
         phone: user.phone,
-        balance: balanceRes.data.balance,
+        balance: user.balance,
+        bonus_balance: user.bonus_balance,
+        referral_code: user.referral_code,
       });
   
-      toast.success(isLogin ? 'Welcome back!' : 'Account created!');
       setIsAuthOpen(false);
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || err.message || 'Authentication failed');
+      toast.success(isLogin ? 'Welcome back!' : 'Account created!');
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Authentication failed');
     } finally {
       setIsLoading(false);
     }
   };
   
-  
-
   
 
   return (
@@ -97,7 +119,7 @@ export function AuthModal() {
                   <p className="text-sm text-muted-foreground">
                     {isLogin 
                       ? 'Enter your credentials to continue' 
-                      : 'Join Uganda Elections'}
+                      : 'Join Uganda Elections Betting'}
                   </p>
                 </div>
 
@@ -111,13 +133,13 @@ export function AuthModal() {
                       <input
                         type="tel"
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
-                        placeholder="7XX XXX XXX"
+                        onChange={(e) => setPhone(normalizePhone(e.target.value))}
+                        placeholder="768912345"
                         className="input-field pl-12"
                       />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                      {/* <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                         +256
-                      </span>
+                      </span> */}
                     </div>
                   </div>
 
@@ -143,6 +165,29 @@ export function AuthModal() {
                       </button>
                     </div>
                   </div>
+
+                  {/* Referral Code - Only show on signup */}
+                  {!isLogin && (
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Referral Code <span className="text-muted-foreground font-normal">(optional)</span>
+                      </label>
+                      <div className="relative">
+                        <Gift className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-uganda-yellow" />
+                        <input
+                          type="text"
+                          value={referralCode}
+                          onChange={(e) => setReferralCode(e.target.value.toUpperCase().slice(0, 10))}
+                          placeholder="Enter code (e.g. ABC123)"
+                          className="input-field pl-12 uppercase tracking-wider"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
+                        <span className="text-uganda-yellow">✨</span>
+                        Get UGX 2,500 bonus! Referrer gets UGX 10,000!
+                      </p>
+                    </div>
+                  )}
 
                   {/* Submit */}
                   <motion.button
