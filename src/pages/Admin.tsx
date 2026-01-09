@@ -9,6 +9,9 @@ import {
   Plus,
   Trash2,
   Edit,
+  CheckCircle,
+  XCircle,
+  Clock,
 } from 'lucide-react';
 import {
   Tabs,
@@ -39,11 +42,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import {
   getAdminUsers,
   adminAddBalance,
   reconcileMpesa,
+  getMpesaTransactions,
   getElections,
   addElection,
   updateElection,
@@ -53,7 +58,27 @@ import {
   deleteCandidate,
 } from '@/lib/api';
 
-const formatCurrency = (amount: number) => `UGX ${amount.toLocaleString()}`;
+const formatCurrency = (amount) => `UGX ${amount.toLocaleString()}`;
+
+const getStatusBadge = (status) => {
+  const statusConfig = {
+    PENDING: { color: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20', icon: Clock },
+    SUCCESS: { color: 'bg-green-500/10 text-green-500 border-green-500/20', icon: CheckCircle },
+    FAILED: { color: 'bg-red-500/10 text-red-500 border-red-500/20', icon: XCircle },
+    CANCELLED: { color: 'bg-gray-500/10 text-gray-500 border-gray-500/20', icon: XCircle },
+    SUCCESS_NO_USER: { color: 'bg-orange-500/10 text-orange-500 border-orange-500/20', icon: XCircle },
+  };
+  
+  const config = statusConfig[status] || statusConfig.PENDING;
+  const Icon = config.icon;
+  
+  return (
+    <Badge variant="outline" className={`${config.color} flex items-center gap-1 w-fit`}>
+      <Icon className="w-3 h-3" />
+      {status}
+    </Badge>
+  );
+};
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -62,19 +87,21 @@ export default function Admin() {
   const [isLoading, setIsLoading] = useState(false);
 
   // USERS
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [amountToAdd, setAmountToAdd] = useState('');
   const [addingBalance, setAddingBalance] = useState(false);
 
   // MPESA
   const [reconciling, setReconciling] = useState(false);
+  const [mpesaTransactions, setMpesaTransactions] = useState([]);
+  const [loadingTransactions, setLoadingTransactions] = useState(false);
 
   // ELECTIONS
-  const [elections, setElections] = useState<any[]>([]);
+  const [elections, setElections] = useState([]);
   const [loadingElections, setLoadingElections] = useState(false);
-  const [electionDialog, setElectionDialog] = useState<any | null>(null);
+  const [electionDialog, setElectionDialog] = useState(null);
   const [electionData, setElectionData] = useState({
     id: '',
     title: '',
@@ -83,15 +110,8 @@ export default function Admin() {
   });
 
   // CANDIDATES
-  const [candidateDialog, setCandidateDialog] = useState<any | null>(null);
-  const [candidateData, setCandidateData] = useState<{
-    id?: number;
-    name: string;
-    party: string;
-    odds: number;
-    image: string;
-    election_id: string;
-  }>({
+  const [candidateDialog, setCandidateDialog] = useState(null);
+  const [candidateData, setCandidateData] = useState({
     id: undefined,
     name: '',
     party: '',
@@ -101,7 +121,7 @@ export default function Admin() {
   });
 
   // LOGIN
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setTimeout(() => {
@@ -110,6 +130,7 @@ export default function Admin() {
         toast.success('Welcome to Admin Center');
         loadUsers();
         loadElections();
+        loadMpesaTransactions();
       } else {
         toast.error('Invalid credentials');
       }
@@ -123,6 +144,7 @@ export default function Admin() {
     setPassword('');
     setUsers([]);
     setElections([]);
+    setMpesaTransactions([]);
     toast.success('Logged out successfully');
   };
 
@@ -158,14 +180,29 @@ export default function Admin() {
     }
   };
 
+  // MPESA TRANSACTIONS
+  const loadMpesaTransactions = async () => {
+    try {
+      setLoadingTransactions(true);
+      const res = await getMpesaTransactions();
+      setMpesaTransactions(res.data);
+    } catch (err) {
+      toast.error('Failed to load M-Pesa transactions');
+      console.error(err);
+    } finally {
+      setLoadingTransactions(false);
+    }
+  };
+
   // MPESA RECONCILE
   const handleReconcile = async () => {
     try {
       setReconciling(true);
       await reconcileMpesa();
-      toast.success('MPESA pending transactions reconciled');
+      toast.success('M-Pesa pending transactions reconciled');
+      loadMpesaTransactions(); // Reload after reconciliation
     } catch (err) {
-      toast.error('Failed to reconcile MPESA');
+      toast.error('Failed to reconcile M-Pesa');
       console.error(err);
     } finally {
       setReconciling(false);
@@ -177,7 +214,7 @@ export default function Admin() {
     try {
       setLoadingElections(true);
       const res = await getElections();
-      const electionsWithCandidates = res.data.map((e: any) => ({
+      const electionsWithCandidates = res.data.map((e) => ({
         ...e,
         candidates: e.candidates || [],
       }));
@@ -201,7 +238,7 @@ export default function Admin() {
     });
   };
 
-  const openEditElection = (election: any) => {
+  const openEditElection = (election) => {
     setElectionDialog({ type: 'edit', election });
     setElectionData({
       id: election.id,
@@ -228,7 +265,7 @@ export default function Admin() {
     }
   };
 
-  const handleDeleteElection = async (id: string) => {
+  const handleDeleteElection = async (id) => {
     if (!confirm('Are you sure? This will delete all candidates too.')) return;
     try {
       await deleteElection(id);
@@ -241,7 +278,7 @@ export default function Admin() {
   };
 
   // CANDIDATE CRUD
-  const openAddCandidate = (election_id: string) => {
+  const openAddCandidate = (election_id) => {
     setCandidateDialog({ type: 'add', election_id });
     setCandidateData({
       id: undefined,
@@ -253,7 +290,7 @@ export default function Admin() {
     });
   };
 
-  const openEditCandidate = (candidate: any, election_id: string) => {
+  const openEditCandidate = (candidate, election_id) => {
     setCandidateDialog({ type: 'edit', candidate });
     setCandidateData({ ...candidate, election_id });
   };
@@ -275,7 +312,7 @@ export default function Admin() {
     }
   };
 
-  const handleDeleteCandidate = async (id: number) => {
+  const handleDeleteCandidate = async (id) => {
     if (!confirm('Are you sure you want to delete this candidate?')) return;
     try {
       await deleteCandidate(id);
@@ -364,7 +401,7 @@ export default function Admin() {
             </TabsTrigger>
             <TabsTrigger value="mpesa">
               <CreditCard className="w-4 h-4 mr-2" />
-              MPESA
+              M-Pesa
             </TabsTrigger>
           </TabsList>
 
@@ -437,7 +474,7 @@ export default function Admin() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {election.candidates.map((c: any) => (
+                        {election.candidates.map((c) => (
                           <TableRow key={c.id}>
                             <TableCell className="font-medium">{c.name}</TableCell>
                             <TableCell>{c.party}</TableCell>
@@ -534,20 +571,70 @@ export default function Admin() {
           </TabsContent>
 
           {/* MPESA TAB */}
-          <TabsContent value="mpesa">
+          <TabsContent value="mpesa" className="space-y-4">
             <div className="bg-card border rounded-xl p-6">
-              <h2 className="font-semibold text-lg mb-4">MPESA Management</h2>
-              <Button
-                variant="outline"
-                onClick={handleReconcile}
-                disabled={reconciling}
-                className="gap-2"
-              >
-                <RefreshCw
-                  className={`w-4 h-4 ${reconciling ? 'animate-spin' : ''}`}
-                />
-                Reconcile Pending Transactions
-              </Button>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="font-semibold text-lg">M-Pesa Management</h2>
+                <Button
+                  variant="outline"
+                  onClick={handleReconcile}
+                  disabled={reconciling}
+                  className="gap-2"
+                >
+                  <RefreshCw
+                    className={`w-4 h-4 ${reconciling ? 'animate-spin' : ''}`}
+                  />
+                  {reconciling ? 'Reconciling...' : 'Reconcile Pending'}
+                </Button>
+              </div>
+            </div>
+
+            <div className="bg-card border rounded-xl overflow-hidden">
+              <div className="p-4 border-b flex justify-between items-center">
+                <h2 className="font-semibold text-lg">Recent Transactions</h2>
+                <Button size="sm" variant="outline" onClick={loadMpesaTransactions}>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Refresh
+                </Button>
+              </div>
+              {loadingTransactions ? (
+                <div className="p-8 text-center">Loading transactions...</div>
+              ) : mpesaTransactions.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  No M-Pesa transactions yet
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {mpesaTransactions.map((txn) => (
+                      <TableRow key={txn.id}>
+                        <TableCell className="font-mono text-xs">
+                          #{txn.id}
+                        </TableCell>
+                        <TableCell className="font-mono">{txn.phone}</TableCell>
+                        <TableCell className="text-uganda-yellow font-semibold">
+                          {formatCurrency(txn.amount)}
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(txn.status)}
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {new Date(txn.created_at).toLocaleString()}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </div>
           </TabsContent>
         </Tabs>

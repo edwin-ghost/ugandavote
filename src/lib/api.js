@@ -88,6 +88,9 @@ export const checkMpesaStatus = (checkoutRequestId) =>
 export const updatePendingMpesa = () =>
   api.post('/payments/mpesa/update_pending');
 
+export const getMpesaTransactions = () =>
+  api.get('/admin/mpesa-transactions');
+
 // ===============================
 // BETS
 // ===============================
