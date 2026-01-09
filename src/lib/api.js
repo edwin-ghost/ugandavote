@@ -128,7 +128,7 @@ export const deleteElection = (id) => api2.delete(`/election/${id}`);
 export const addCandidate = (candidate) => api2.post('/candidate', candidate);
 
 export const updateCandidate = (id, candidate) =>
-  api.put(`/candidate/${id}`, candidate);
+  api2.put(`/candidate/${id}`, candidate);
 
 export const deleteCandidate = (id) => api2.delete(`/candidate/${id}`);
 
