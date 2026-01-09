@@ -1,5 +1,9 @@
-import { Election, Constituency } from '@/types';
+import { Constituency } from '@/types';
 
+// ============================================================================
+// CONSTITUENCIES
+// ============================================================================
+// Constituencies data - available for use in dropdowns, filters, etc.
 export const constituencies: Constituency[] = [
   { id: 'national', name: 'National', type: 'national' },
   { id: 'central', name: 'Central Region', type: 'region' },
@@ -13,172 +17,66 @@ export const constituencies: Constituency[] = [
   { id: 'mbarara', name: 'Mbarara District', type: 'district' },
 ];
 
-export const elections: Election[] = [
-  {
-    id: 'presidential-2026',
-    title: 'Presidential Election 2026',
-    type: 'presidential',
-    constituency: 'National',
-    isFeatured: true,
-    candidates: [
-      {
-        id: 'museveni',
-        name: 'Yoweri Museveni',
-        party: 'NRM',
-        partyColor: '#FCDC04',
-        image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFTRur4rl0RhW8v9r2S9Ag3PLXHriDGl2mjA&s',
-        odds: 1.45,
-        isLeading: true,
-      },
-      {
-        id: 'kyagulanyi',
-        name: 'Robert Kyagulanyi',
-        party: 'NUP',
-        partyColor: '#D90000',
-        image: '/candidates/bobi.jpg',
-        odds: 3.20,
-      },
-      {
-        id: 'besigye',
-        name: 'Kizza Besigye',
-        party: 'FDC',
-        partyColor: '#0066CC',
-        image: '/candidates/besigye.jpg',
-        odds: 8.50,
-      },
-      {
-        id: 'muntu',
-        name: 'Mugisha Muntu',
-        party: 'ANT',
-        partyColor: '#228B22',
-        image: '/candidates/muntu.jpg',
-        odds: 15.00,
-      },
-    ],
-  },
-  {
-    id: 'kampala-mp-2026',
-    title: 'Kampala Central MP',
-    type: 'parliamentary',
-    constituency: 'Kampala District',
-    candidates: [
-      {
-        id: 'nsereko',
-        name: 'Muhammad Nsereko',
-        party: 'Independent',
-        partyColor: '#666666',
-        image: '/candidates/nsereko.jpg',
-        odds: 1.85,
-        isLeading: true,
-      },
-      {
-        id: 'ssemujju',
-        name: 'Ibrahim Ssemujju',
-        party: 'FDC',
-        partyColor: '#0066CC',
-        image: '/candidates/ssemujju.jpg',
-        odds: 2.40,
-      },
-    ],
-  },
-  {
-    id: 'wakiso-woman-2026',
-    title: 'Wakiso Woman MP',
-    type: 'special',
-    constituency: 'Wakiso District',
-    candidates: [
-      {
-        id: 'nantaba',
-        name: 'Idah Nantaba',
-        party: 'NRM',
-        partyColor: '#FCDC04',
-        image: '/candidates/nantaba.jpg',
-        odds: 2.10,
-      },
-      {
-        id: 'namuganza',
-        name: 'Persis Namuganza',
-        party: 'NRM',
-        partyColor: '#FCDC04',
-        image: '/candidates/namuganza.jpg',
-        odds: 2.50,
-        isLeading: true,
-      },
-    ],
-  },
-  {
-    id: 'gulu-mayor-2026',
-    title: 'Gulu City Mayor',
-    type: 'gubernatorial',
-    constituency: 'Gulu District',
-    candidates: [
-      {
-        id: 'ojara',
-        name: 'Alfred Ojara',
-        party: 'FDC',
-        partyColor: '#0066CC',
-        image: '/candidates/ojara.jpg',
-        odds: 1.95,
-        isLeading: true,
-      },
-      {
-        id: 'lakony',
-        name: 'George Lakony',
-        party: 'NRM',
-        partyColor: '#FCDC04',
-        image: '/candidates/lakony.jpg',
-        odds: 2.20,
-      },
-    ],
-  },
-  {
-    id: 'jinja-mp-2026',
-    title: 'Jinja East MP',
-    type: 'parliamentary',
-    constituency: 'Jinja District',
-    candidates: [
-      {
-        id: 'nabwiso',
-        name: 'Paul Nabwiso',
-        party: 'NUP',
-        partyColor: '#D90000',
-        image: '/candidates/nabwiso.jpg',
-        odds: 1.75,
-        isLeading: true,
-      },
-      {
-        id: 'kyakulaga',
-        name: 'Nathan Kyakulaga',
-        party: 'NRM',
-        partyColor: '#FCDC04',
-        image: '/candidates/kyakulaga.jpg',
-        odds: 2.80,
-      },
-    ],
-  },
-  {
-    id: 'youth-rep-2026',
-    title: 'National Youth Representative',
-    type: 'special',
-    constituency: 'National',
-    candidates: [
-      {
-        id: 'zaake',
-        name: 'Francis Zaake',
-        party: 'NUP',
-        partyColor: '#D90000',
-        image: '/candidates/zaake.jpg',
-        odds: 2.00,
-        isLeading: true,
-      },
-      {
-        id: 'munyagwa',
-        name: 'Muwanga Kivumbi',
-        party: 'DP',
-        partyColor: '#006400',
-        image: '/candidates/munyagwa.jpg',
-        odds: 3.50,
-      },
-    ],
-  },
+// ============================================================================
+// ELECTION TYPES
+// ============================================================================
+// Election types helper - useful for dropdowns in admin panel
+export const electionTypes = [
+  { value: 'presidential', label: 'Presidential' },
+  { value: 'parliamentary', label: 'Parliamentary' },
+  { value: 'gubernatorial', label: 'Gubernatorial' },
+  { value: 'special', label: 'Special Seats' },
 ];
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Get constituency name by ID
+ * @param id - Constituency ID
+ * @returns Constituency name or the ID if not found
+ * 
+ * @example
+ * getConstituencyName('kampala') // Returns "Kampala District"
+ * getConstituencyName('unknown') // Returns "unknown"
+ */
+export const getConstituencyName = (id: string): string => {
+  const constituency = constituencies.find(c => c.id === id);
+  return constituency?.name || id;
+};
+
+/**
+ * Get election type label
+ * @param type - Election type value
+ * @returns Human-readable label or the type if not found
+ * 
+ * @example
+ * getElectionTypeLabel('presidential') // Returns "Presidential"
+ * getElectionTypeLabel('unknown') // Returns "unknown"
+ */
+export const getElectionTypeLabel = (type: string): string => {
+  const electionType = electionTypes.find(t => t.value === type);
+  return electionType?.label || type;
+};
+
+/**
+ * Get constituencies by type
+ * @param type - Type of constituency ('national', 'region', 'district')
+ * @returns Array of constituencies matching the type
+ * 
+ * @example
+ * getConstituenciesByType('region') // Returns all regional constituencies
+ */
+export const getConstituenciesByType = (type: 'national' | 'region' | 'district'): Constituency[] => {
+  return constituencies.filter(c => c.type === type);
+};
+
+/**
+ * Check if a constituency exists
+ * @param id - Constituency ID to check
+ * @returns True if constituency exists
+ */
+export const constituencyExists = (id: string): boolean => {
+  return constituencies.some(c => c.id === id);
+};
