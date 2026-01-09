@@ -120,7 +120,7 @@ export const getElections = () => api2.get('/elections');
 export const addElection = (election) => api2.post('/election', election);
 
 export const updateElection = (id, election) =>
-  api.put(`/election/${id}`, election);
+  api2.put(`/election/${id}`, election);
 
 export const deleteElection = (id) => api2.delete(`/election/${id}`);
 
