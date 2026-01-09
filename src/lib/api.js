@@ -9,6 +9,16 @@ const api = axios.create({
   },
 });
 
+
+const API_BASE_URL_2 = 'https://ugandavote-backend.onrender.com';
+
+const api2 = axios.create({
+  baseURL: API_BASE_URL_2,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 // Token management
 export const setAuthToken = (token) => {
   if (token) {
@@ -104,22 +114,22 @@ export const reconcileMpesa = () =>
 // ===============================
 // ELECTIONS & CANDIDATES
 // ===============================
-export const getElections = () => api.get('/elections');
+export const getElections = () => api2.get('/elections');
 
 // Election CRUD
-export const addElection = (election) => api.post('/election', election);
+export const addElection = (election) => api2.post('/election', election);
 
 export const updateElection = (id, election) =>
   api.put(`/election/${id}`, election);
 
-export const deleteElection = (id) => api.delete(`/election/${id}`);
+export const deleteElection = (id) => api2.delete(`/election/${id}`);
 
 // Candidate CRUD
-export const addCandidate = (candidate) => api.post('/candidate', candidate);
+export const addCandidate = (candidate) => api2.post('/candidate', candidate);
 
 export const updateCandidate = (id, candidate) =>
   api.put(`/candidate/${id}`, candidate);
 
-export const deleteCandidate = (id) => api.delete(`/candidate/${id}`);
+export const deleteCandidate = (id) => api2.delete(`/candidate/${id}`);
 
 export default api;
