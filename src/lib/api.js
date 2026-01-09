@@ -31,7 +31,6 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
       setAuthToken(null);
       window.location.href = '/';
     }
@@ -42,7 +41,6 @@ api.interceptors.response.use(
 // ===============================
 // AUTH
 // ===============================
-
 export const registerUser = (phone, pin, referralCode = '') => 
   api.post('/auth/register', { phone, pin, referralCode });
 
@@ -52,7 +50,6 @@ export const loginUser = (phone, pin) =>
 // ===============================
 // USER & BALANCE
 // ===============================
-
 export const getBalance = () => api.get('/balance');
 
 export const deposit = (user_id, amount) => 
@@ -67,13 +64,11 @@ export const getWithdrawalHistory = () =>
 // ===============================
 // REFERRALS
 // ===============================
-
 export const getReferralStats = () => api.get('/referrals/stats');
 
 // ===============================
 // PAYMENTS - M-PESA
 // ===============================
-
 export const mpesaPayment = (phone, amount) => 
   api.post('/payments/mpesa', { phone, amount });
 
@@ -86,18 +81,15 @@ export const updatePendingMpesa = () =>
 // ===============================
 // BETS
 // ===============================
-
 export const placeBet = (bet) => api.post('/bets', bet);
 
 export const getBetHistory = () => api.get('/bets/history');
 
 export const placeJackpotBet = (jackpotData) => api.post('/bets', jackpotData);
 
-
 // ===============================
 // ADMIN
 // ===============================
-
 export const getAdminUsers = () => api.get('/admin/users');
 
 export const adminAddBalance = (user_id, amount) =>
@@ -105,5 +97,29 @@ export const adminAddBalance = (user_id, amount) =>
 
 export const reconcileMpesa = () =>
   api.post('/payments/mpesa/update_pending');
+
+// ===============================
+// ELECTIONS & CANDIDATES
+// ===============================
+// ===============================
+// ELECTIONS & CANDIDATES
+// ===============================
+export const getElections = () => api.get('/elections');
+
+// Election CRUD
+export const addElection = (election) => api.post('/election', election);
+
+export const updateElection = (id, election) =>
+  api.put(`/election/${id}`, election);
+
+export const deleteElection = (id) => api.delete(`/election/${id}`);
+
+// Candidate CRUD
+export const addCandidate = (candidate) => api.post('/candidate', candidate);
+
+export const updateCandidate = (id, candidate) =>
+  api.put(`/candidate/${id}`, candidate);
+
+export const deleteCandidate = (id) => api.delete(`/candidate/${id}`);
 
 export default api;
