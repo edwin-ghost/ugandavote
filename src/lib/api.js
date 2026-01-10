@@ -111,6 +111,15 @@ export const adminAddBalance = (user_id, amount) =>
 export const reconcileMpesa = () =>
   api.post('/payments/mpesa/update_pending');
 
+
+// Admin Withdrawals
+export const getAdminWithdrawals = () =>
+  api.get('/admin/withdrawals');
+
+export const updateWithdrawalStatus = (withdrawalId, status) =>
+  api.put(`/admin/withdrawals/${withdrawalId}`, { status });
+
+
 // ===============================
 // ELECTIONS & CANDIDATES
 // ===============================

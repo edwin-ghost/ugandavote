@@ -12,6 +12,7 @@ import {
   CheckCircle,
   XCircle,
   Clock,
+  Wallet,
 } from 'lucide-react';
 import {
   Tabs,
@@ -56,6 +57,8 @@ import {
   addCandidate,
   updateCandidate,
   deleteCandidate,
+  getAdminWithdrawals,
+  updateWithdrawalStatus,
 } from '@/lib/api';
 
 const formatCurrency = (amount) => `UGX ${amount.toLocaleString()}`;
@@ -67,15 +70,18 @@ const getStatusBadge = (status) => {
     FAILED: { color: 'bg-red-500/10 text-red-500 border-red-500/20', icon: XCircle },
     CANCELLED: { color: 'bg-gray-500/10 text-gray-500 border-gray-500/20', icon: XCircle },
     SUCCESS_NO_USER: { color: 'bg-orange-500/10 text-orange-500 border-orange-500/20', icon: XCircle },
+    pending: { color: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20', icon: Clock },
+    success: { color: 'bg-green-500/10 text-green-500 border-green-500/20', icon: CheckCircle },
+    failed: { color: 'bg-red-500/10 text-red-500 border-red-500/20', icon: XCircle },
   };
   
-  const config = statusConfig[status] || statusConfig.PENDING;
+  const config = statusConfig[status] || statusConfig.pending;
   const Icon = config.icon;
   
   return (
     <Badge variant="outline" className={`${config.color} flex items-center gap-1 w-fit`}>
       <Icon className="w-3 h-3" />
-      {status}
+      {status.toUpperCase()}
     </Badge>
   );
 };
@@ -97,6 +103,11 @@ export default function Admin() {
   const [reconciling, setReconciling] = useState(false);
   const [mpesaTransactions, setMpesaTransactions] = useState([]);
   const [loadingTransactions, setLoadingTransactions] = useState(false);
+
+  // WITHDRAWALS
+  const [withdrawals, setWithdrawals] = useState([]);
+  const [loadingWithdrawals, setLoadingWithdrawals] = useState(false);
+  const [updatingWithdrawal, setUpdatingWithdrawal] = useState(null);
 
   // ELECTIONS
   const [elections, setElections] = useState([]);
@@ -131,6 +142,7 @@ export default function Admin() {
         loadUsers();
         loadElections();
         loadMpesaTransactions();
+        loadWithdrawals();
       } else {
         toast.error('Invalid credentials');
       }
@@ -145,6 +157,7 @@ export default function Admin() {
     setUsers([]);
     setElections([]);
     setMpesaTransactions([]);
+    setWithdrawals([]);
     toast.success('Logged out successfully');
   };
 
@@ -200,12 +213,41 @@ export default function Admin() {
       setReconciling(true);
       await reconcileMpesa();
       toast.success('M-Pesa pending transactions reconciled');
-      loadMpesaTransactions(); // Reload after reconciliation
+      loadMpesaTransactions();
     } catch (err) {
       toast.error('Failed to reconcile M-Pesa');
       console.error(err);
     } finally {
       setReconciling(false);
+    }
+  };
+
+  // LOAD WITHDRAWALS
+  const loadWithdrawals = async () => {
+    try {
+      setLoadingWithdrawals(true);
+      const res = await getAdminWithdrawals();
+      setWithdrawals(res.data);
+    } catch (err) {
+      toast.error('Failed to load withdrawals');
+      console.error(err);
+    } finally {
+      setLoadingWithdrawals(false);
+    }
+  };
+
+  // UPDATE WITHDRAWAL STATUS
+  const handleUpdateWithdrawal = async (withdrawalId, status) => {
+    try {
+      setUpdatingWithdrawal(withdrawalId);
+      await updateWithdrawalStatus(withdrawalId, status);
+      toast.success(`Withdrawal marked as ${status}`);
+      loadWithdrawals();
+    } catch (err) {
+      toast.error('Failed to update withdrawal');
+      console.error(err);
+    } finally {
+      setUpdatingWithdrawal(null);
     }
   };
 
@@ -390,7 +432,7 @@ export default function Admin() {
       {/* CONTENT */}
       <main className="max-w-7xl mx-auto px-4 py-6">
         <Tabs defaultValue="elections">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="elections">
               <Shield className="w-4 h-4 mr-2" />
               Elections
@@ -398,6 +440,10 @@ export default function Admin() {
             <TabsTrigger value="users">
               <Users className="w-4 h-4 mr-2" />
               Users
+            </TabsTrigger>
+            <TabsTrigger value="withdrawals">
+              <Wallet className="w-4 h-4 mr-2" />
+              Withdrawals
             </TabsTrigger>
             <TabsTrigger value="mpesa">
               <CreditCard className="w-4 h-4 mr-2" />
@@ -570,6 +616,84 @@ export default function Admin() {
             </div>
           </TabsContent>
 
+          {/* WITHDRAWALS TAB */}
+          <TabsContent value="withdrawals">
+            <div className="bg-card border rounded-xl overflow-hidden">
+              <div className="p-4 border-b flex justify-between items-center">
+                <h2 className="font-semibold text-lg">Withdrawal Requests</h2>
+                <Button size="sm" variant="outline" onClick={loadWithdrawals}>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Refresh
+                </Button>
+              </div>
+              {loadingWithdrawals ? (
+                <div className="p-8 text-center">Loading withdrawals...</div>
+              ) : withdrawals.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  No withdrawal requests yet
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Method</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {withdrawals.map((w) => (
+                      <TableRow key={w.id}>
+                        <TableCell className="font-mono text-xs">
+                          #{w.id}
+                        </TableCell>
+                        <TableCell className="font-mono">{w.phone}</TableCell>
+                        <TableCell className="text-uganda-yellow font-semibold">
+                          {formatCurrency(w.amount)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{w.method}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(w.status)}
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {new Date(w.created_at).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-600 border-green-600 hover:bg-green-50"
+                              onClick={() => handleUpdateWithdrawal(w.id, 'success')}
+                              disabled={updatingWithdrawal === w.id || w.status === 'success'}
+                            >
+                              <CheckCircle className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 border-red-600 hover:bg-red-50"
+                              onClick={() => handleUpdateWithdrawal(w.id, 'failed')}
+                              disabled={updatingWithdrawal === w.id || w.status === 'failed'}
+                            >
+                              <XCircle className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </div>
+          </TabsContent>
+
           {/* MPESA TAB */}
           <TabsContent value="mpesa" className="space-y-4">
             <div className="bg-card border rounded-xl p-6">
@@ -713,6 +837,7 @@ export default function Admin() {
             <Button onClick={handleSaveElection} className="w-full">
               {electionDialog?.type === 'add' ? 'Add Election' : 'Update Election'}
             </Button>
+
           </div>
         </DialogContent>
       </Dialog>
