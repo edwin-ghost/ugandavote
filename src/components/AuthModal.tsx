@@ -14,18 +14,33 @@ export function AuthModal() {
   const [referralCode, setReferralCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-
   const normalizePhone = (value: string) => {
     return value.replace(/\D/g, '').slice(0, 9);
   };
 
-  // Pre-fill referral code from URL if available
+  // Extract referral code from URL and pre-fill on signup
   useEffect(() => {
-    const storedCode = localStorage.getItem('referralCode');
-    if (storedCode && !isLogin) {
-      setReferralCode(storedCode);
+    // Get referral code from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const refFromUrl = urlParams.get('ref');
+    
+    if (refFromUrl && !isLogin) {
+      // Auto-fill referral code from URL
+      setReferralCode(refFromUrl.toUpperCase());
+      
+      // Optionally store in localStorage for persistence
+      localStorage.setItem('referralCode', refFromUrl.toUpperCase());
+      
+      // Show success message
+      toast.success(`Referral code ${refFromUrl.toUpperCase()} applied!`);
+    } else if (!isLogin) {
+      // Fall back to stored code if no URL param
+      const storedCode = localStorage.getItem('referralCode');
+      if (storedCode) {
+        setReferralCode(storedCode);
+      }
     }
-  }, [isLogin]);
+  }, [isLogin, isAuthOpen]); // Re-run when modal opens or switches to signup
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,7 +58,7 @@ export function AuthModal() {
     setIsLoading(true);
   
     try {
-      const fullPhone = phone; // ✅ EXACTLY WHAT BACKEND EXPECTS
+      const fullPhone = phone;
   
       let response;
       if (isLogin) {
@@ -64,6 +79,11 @@ export function AuthModal() {
         referral_code: user.referral_code,
       });
   
+      // Clear referral code from localStorage after successful signup
+      if (!isLogin) {
+        localStorage.removeItem('referralCode');
+      }
+  
       setIsAuthOpen(false);
       toast.success(isLogin ? 'Welcome back!' : 'Account created!');
     } catch (error) {
@@ -72,8 +92,6 @@ export function AuthModal() {
       setIsLoading(false);
     }
   };
-  
-  
 
   return (
     <AnimatePresence>
@@ -137,9 +155,6 @@ export function AuthModal() {
                         placeholder="768912345"
                         className="input-field pl-12"
                       />
-                      {/* <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                        +256
-                      </span> */}
                     </div>
                   </div>
 
