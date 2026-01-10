@@ -639,7 +639,9 @@ export default function Admin() {
                       <TableHead>ID</TableHead>
                       <TableHead>Phone</TableHead>
                       <TableHead>Amount</TableHead>
+                      <TableHead>User Balance</TableHead>
                       <TableHead>Method</TableHead>
+                      <TableHead>M-Pesa User</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead>Actions</TableHead>
@@ -655,8 +657,24 @@ export default function Admin() {
                         <TableCell className="text-uganda-yellow font-semibold">
                           {formatCurrency(w.amount)}
                         </TableCell>
+                        <TableCell className="font-semibold">
+                          {formatCurrency(w.user_balance)}
+                        </TableCell>
                         <TableCell>
                           <Badge variant="outline">{w.method}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          {w.is_mpesa_user ? (
+                            <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Yes
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-muted-foreground">
+                              <XCircle className="w-3 h-3 mr-1" />
+                              No
+                            </Badge>
+                          )}
                         </TableCell>
                         <TableCell>
                           {getStatusBadge(w.status)}
