@@ -61,7 +61,7 @@ import {
   updateWithdrawalStatus,
 } from '@/lib/api';
 
-const formatCurrency = (amount) => `UGX ${amount.toLocaleString()}`;
+const formatCurrency = (amount) => `UGX ${amount}`;
 
 const getStatusBadge = (status) => {
   const statusConfig = {
