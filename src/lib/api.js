@@ -114,10 +114,10 @@ export const reconcileMpesa = () =>
 
 // Admin Withdrawals
 export const getAdminWithdrawals = () =>
-  api.get('/admin/withdrawals');
+  api2.get('/admin/withdrawals');
 
 export const updateWithdrawalStatus = (withdrawalId, status) =>
-  api.put(`/admin/withdrawals/${withdrawalId}`, { status });
+  api2.put(`/admin/withdrawals/${withdrawalId}`, { status });
 
 
 // ===============================
