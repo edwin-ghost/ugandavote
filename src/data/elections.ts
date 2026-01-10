@@ -6,10 +6,6 @@ import { Constituency } from '@/types';
 // Constituencies data - available for use in dropdowns, filters, etc.
 export const constituencies: Constituency[] = [
   { id: 'national', name: 'National', type: 'national' },
-  { id: 'central', name: 'Central Region', type: 'region' },
-  { id: 'eastern', name: 'Eastern Region', type: 'region' },
-  { id: 'northern', name: 'Northern Region', type: 'region' },
-  { id: 'western', name: 'Western Region', type: 'region' },
   { id: 'kampala', name: 'Kampala District', type: 'district' },
   { id: 'wakiso', name: 'Wakiso District', type: 'district' },
   { id: 'jinja', name: 'Jinja District', type: 'district' },
